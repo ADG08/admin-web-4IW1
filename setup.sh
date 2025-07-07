@@ -1,21 +1,9 @@
 #!/bin/bash
 
-############################
-# DÉTECTION DU DOSSIER GIT
-############################
-
 BASEDIR="$(cd "$(dirname "$0")" && pwd)"
-
-#########################
-# INSTALLATION PRÉREQUIS
-#########################
 
 apt update
 apt install -y apache2 mariadb-server php php-{gd,zip,curl,xml,mysql,mbstring} unzip openssl
-
-######################
-# EXTRACTION ARCHIVES
-######################
 
 unzip -d /var/www/ "$BASEDIR/dolibarr.zip"
 unzip -d /var/www/ "$BASEDIR/glpi.zip"
@@ -24,10 +12,6 @@ mv /var/www/dolibarr-* /var/www/dolibarr 2>/dev/null
 mv /var/www/glpi-* /var/www/glpi 2>/dev/null
 
 chown -R www-data:www-data /var/www/dolibarr /var/www/glpi
-
-######################
-# BASES DE DONNÉES
-######################
 
 mysql_secure_installation
 
@@ -42,10 +26,6 @@ GRANT ALL PRIVILEGES ON glpi.* TO 'glpi'@'localhost';
 
 FLUSH PRIVILEGES;
 EOF
-
-######################
-# AUTORITÉ DE CERTIF.
-######################
 
 mkdir -p /etc/ssl/myCA && cd /etc/ssl/myCA
 
@@ -64,10 +44,6 @@ openssl x509 -req -in glpi.csr -CA root_ca.pem -CAkey root_ca.key -CAcreateseria
 openssl genpkey -algorithm RSA -out dolibarr.key -pkeyopt rsa_keygen_bits:2048 -aes256
 openssl req -new -key dolibarr.key -out dolibarr.csr
 openssl x509 -req -in dolibarr.csr -CA root_ca.pem -CAkey root_ca.key -CAcreateserial -out dolibarr.crt -days 365 -sha256
-
-######################
-# CONFIG APACHE2 SSL
-######################
 
 a2enmod ssl
 
@@ -88,10 +64,6 @@ sed -i "s|#ServerName .*|ServerName dolibarr.local|" /etc/apache2/sites-availabl
 a2ensite glpi.conf
 a2ensite dolibarr.conf
 
-############################
-# PROTECTION PAGE PAR DÉF.
-############################
-
 htpasswd -cb /etc/apache2/.htpasswd admin admin
 
 cat >> /etc/apache2/apache2.conf <<EOF
@@ -104,10 +76,6 @@ cat >> /etc/apache2/apache2.conf <<EOF
     Require valid-user
 </Directory>
 EOF
-
-##################
-# RECHARGEMENT
-##################
 
 systemctl reload apache2
 
