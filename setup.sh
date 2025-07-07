@@ -1,5 +1,11 @@
 #!/bin/bash
 
+############################
+# DÉTECTION DU DOSSIER GIT
+############################
+
+BASEDIR="$(cd "$(dirname "$0")" && pwd)"
+
 #########################
 # INSTALLATION PRÉREQUIS
 #########################
@@ -11,8 +17,8 @@ apt install -y apache2 mariadb-server php php-{gd,zip,curl,xml,mysql,mbstring} u
 # EXTRACTION ARCHIVES
 ######################
 
-unzip -d /var/www/ dolibarr.zip
-unzip -d /var/www/ glpi.zip
+unzip -d /var/www/ "$BASEDIR/dolibarr.zip"
+unzip -d /var/www/ "$BASEDIR/glpi.zip"
 
 mv /var/www/dolibarr-* /var/www/dolibarr 2>/dev/null
 mv /var/www/glpi-* /var/www/glpi 2>/dev/null
@@ -47,19 +53,15 @@ mkdir -p /etc/ssl/myCA && cd /etc/ssl/myCA
 openssl genpkey -algorithm RSA -out root_ca.key -pkeyopt rsa_keygen_bits:4096 -aes256
 
 # CA CERT
-openssl req -x509 -new -nodes -key root_ca.key -sha256 -days 120 -out root_ca.pem
+openssl req -x509 -new -key root_ca.key -sha256 -days 120 -out root_ca.pem
 
 # GLPI : Private key
 openssl genpkey -algorithm RSA -out glpi.key -pkeyopt rsa_keygen_bits:2048 -aes256
-
-# GLPI : Cert
 openssl req -new -key glpi.key -out glpi.csr
 openssl x509 -req -in glpi.csr -CA root_ca.pem -CAkey root_ca.key -CAcreateserial -out glpi.crt -days 365 -sha256
 
 # DOLIBARR : Private key
 openssl genpkey -algorithm RSA -out dolibarr.key -pkeyopt rsa_keygen_bits:2048 -aes256
-
-# DOLIBARR : Cert
 openssl req -new -key dolibarr.key -out dolibarr.csr
 openssl x509 -req -in dolibarr.csr -CA root_ca.pem -CAkey root_ca.key -CAcreateserial -out dolibarr.crt -days 365 -sha256
 
@@ -109,4 +111,6 @@ EOF
 
 systemctl reload apache2
 
-echo "✅ Déploiement complet terminé : accédez à https://glpi.local et https://dolibarr.local"
+echo -e "\e[32m✅ Déploiement terminé !\e[0m"
+echo "➡️  https://glpi.local"
+echo "➡️  https://dolibarr.local"
