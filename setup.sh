@@ -3,8 +3,8 @@
 apt update
 apt install -y apache2 mariadb-server php php-{gd,zip,curl,xml,mysql,mbstring} unzip openssl
 
-unzip -d /var/www/ ~/dolibarr.zip
-unzip -d /var/www/ ~/glpi.zip
+unzip -d /var/www/ ~/dolibarr-21.0.1.zip
+unzip -d /var/www/ ~/glpi-10.1.18.zip
 
 mv /var/www/dolibarr-* /var/www/dolibarr 2>/dev/null
 mv /var/www/glpi-* /var/www/glpi 2>/dev/null
