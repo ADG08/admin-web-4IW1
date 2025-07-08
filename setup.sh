@@ -75,6 +75,9 @@ cat >> /etc/apache2/apache2.conf <<EOF
 </Directory>
 EOF
 
+grep -q "glpi.local" /etc/hosts || echo "127.0.0.1 glpi.local" >> /etc/hosts
+grep -q "dolibarr.local" /etc/hosts || echo "127.0.0.1 dolibarr.local" >> /etc/hosts
+
 systemctl reload apache2
 
 echo -e "\e[32m✅ Déploiement terminé !\e[0m"
